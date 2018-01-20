@@ -5,21 +5,26 @@ import java.util.*;
 public class CMS{
   static long lastFrameID = 0;
   static ArrayList<Process> processes = new ArrayList<Process>();
+  //Hardcode executables; implement prompt user
+  static ProcessBuilder notepad = new ProcessBuilder("C:\\Windows\\notepad.exe");
+  static ProcessBuilder music = new ProcessBuilder("C:\\Program Files (x86)\\Windows Media Player\\wmplayer.exe");
+  static ProcessBuilder paint = new ProcessBuilder("C:\\Windows\\System32\\mspaint.exe");
+  static ProcessBuilder chrome = new ProcessBuilder("C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe");
+  static int opennedprograms = 0;
+
 
   public static void main(String[] args){
     Controller controller = new Controller();
     SampleListener listener = new SampleListener();
     FrameListener frame = new FrameListener();
 
-    //controller.addListener(listener);
-    //controller.addListener(frame);
     while(!controller.isConnected()){
-      //do nothing
+      //do nothing; wait till connected
     }
     Frame frame2 = controller.frame();
     while(controller.isConnected()){
       try{
-        Thread.sleep(500);
+        Thread.sleep(1750);
       } catch (InterruptedException e){
         e.printStackTrace();
       }
@@ -33,9 +38,6 @@ public class CMS{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // Remove the sample listener when done
-        //controller.removeListener(listener);
-        //controller.removeListener(frame);
   }
 
   static void processFrame(Frame frame ){
@@ -46,27 +48,46 @@ public class CMS{
 
   static void checkFrame(Frame frame){
     HandList list = frame.hands();
+    Hand hand = list.get(0);
+    FingerList list2 = frame.fingers();
+    Pointable finger = list2.leftmost();
+    com.leapmotion.leap.Vector direction = finger.direction();
+    double threshold = 0.80;
 
-    if(list.count() == 2 && processes.size() < 5){
-      try{
-        processes.add(new ProcessBuilder("C:\\Windows\\notepad.exe").start());
-        //Runtime.getRuntime().exec("C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe", null, new File("C:\\Program Files (x86)\\Google\\Chrome\\Application"));
-      } catch (IOException e){
-        e.printStackTrace();
+
+    //Determine what to execute
+    if (list.count() == 1 && opennedprograms < 5){
+      if(direction.getX() < ( -1 * threshold)){
+        startProcess(notepad);
+      } else if (direction.getY() < (-1 * threshold)){
+        startProcess(music);
+      } else if (direction.getZ() < (-1 * threshold)){
+        startProcess(paint);
+      } else if ( direction.getX() > ( threshold)){
+        startProcess(chrome);
       }
-    } else if (list.count() == 1 && processes.size() > 0){
-        System.out.println("Number of processes: " + processes.size());
-        processes.get(0).destroy();
-        processes.remove(0);
+    } else if (list.count() > 1 && processes.size() > 0) {
+      processes.get(0).destroy();
+      processes.remove(0);
     }
-    System.out.println("Frame id: " + frame.id()
-               + ", timestamp: " + frame.timestamp()
-               + ", hands: " + frame.hands().count()
-               + ", fingers: " + frame.fingers().count());
+
+    //Print out log info
+    System.out.println("X: " + direction.getX()
+                        + ", Y: " + direction.getY()
+                        + ", Z: " + direction.getZ());
+  }
+
+//Start child process
+  public static void startProcess(ProcessBuilder build){
+    try{
+      processes.add(build.start());
+    } catch (IOException e){
+      e.printStackTrace();
+    }
   }
 }
 
-
+/************Listeners (not used) **************/
 class SampleListener extends Listener{
   public void onConnect(Controller controller) {
       System.out.println("Connected");
@@ -102,4 +123,5 @@ class FrameListener extends Listener{
                + ", fingers: " + frame.fingers().count()
                + "chromeopened: " + chromeopened);
   }
+/**************************************************/
 }
