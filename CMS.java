@@ -7,7 +7,7 @@ public class CMS{
   static ArrayList<Process> processes = new ArrayList<Process>();
   //Hardcode executables; implement prompt user
   static ProcessBuilder notepad = new ProcessBuilder("C:\\Windows\\notepad.exe");
-  static ProcessBuilder music = new ProcessBuilder("C:\\Program Files (x86)\\Windows Media Player\\wmplayer.exe");
+  static ProcessBuilder music = new ProcessBuilder("C:\\Program Files (x86)\\Windows Media Player\\wmplayer.exe","C:\\Users\\James\\Music\\04.AmazingGrace.mp3");
   static ProcessBuilder paint = new ProcessBuilder("C:\\Windows\\System32\\mspaint.exe");
   static ProcessBuilder chrome = new ProcessBuilder("C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe");
   static int opennedprograms = 0;
@@ -53,7 +53,6 @@ public class CMS{
     Pointable finger = list2.leftmost();
     com.leapmotion.leap.Vector direction = finger.direction();
     double threshold = 0.80;
-
 
     //Determine what to execute
     if (list.count() == 1 && opennedprograms < 5){
