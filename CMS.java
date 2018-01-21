@@ -52,7 +52,7 @@ public class CMS{
     FingerList list2 = frame.fingers();
     Pointable finger = list2.leftmost();
     com.leapmotion.leap.Vector direction = finger.direction();
-    double threshold = 0.80;
+    double threshold = 0.75;
 
     //Determine what to execute
     if (list.count() == 1 && opennedprograms < 5){
@@ -66,8 +66,8 @@ public class CMS{
         startProcess(chrome);
       }
     } else if (list.count() > 1 && processes.size() > 0) {
-      processes.get(0).destroy();
-      processes.remove(0);
+      processes.get(processes.size() - 1).destroy();
+      processes.remove(processes.size() - 1);
     }
 
     //Print out log info
